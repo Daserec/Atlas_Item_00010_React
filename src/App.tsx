@@ -234,13 +234,13 @@ const MinesweeperGame = () => {
     }, [flagsLeft]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-            <h1 className="text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">Minesweeper</h1>
+        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 dark:bg-gray-900">
+            <h1 className="text-3xl mt-4 font-bold mb-4 text-gray-800 dark:text-gray-200">Minesweeper</h1>
 
             <div
                 className="grid gap-0.5 border border-gray-400 dark:border-gray-600 shadow-md mb-4"
                 style={{
-                    gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(36px, 1fr))`, // Responsive tile size
+                    gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(24px, 36px))`, // Responsive tile size
                     maxWidth: '90vw', // Responsive board width
                 }}
             >
