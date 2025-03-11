@@ -262,7 +262,7 @@ const MinesweeperGame = () => {
                                 }
                             )}
                             onClick={() => (isGameOver || isGameWon) ? {} : handleTileClick(rowIndex, colIndex)}
-                            onContextMenu={(e) => (isGameOver || isGameWon) ? e.preventDefault() : handleTileRightClick(e, rowIndex, colIndex)}
+                            onContextMenu={(e: any) => (isGameOver || isGameWon) ? e.preventDefault() : handleTileRightClick(e, rowIndex, colIndex)}
                         >
                             {tile.isRevealed && (
                                 tile.isMine ? (
