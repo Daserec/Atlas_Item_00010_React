@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Bomb, Flag } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Toaster, toast } from 'sonner';
+import { MotionDiv } from '@/components/common/motion';
 
 // Types and Interfaces
 interface Tile {
@@ -245,7 +246,7 @@ const MinesweeperGame = () => {
             >
                 {board.map((row, rowIndex) => (
                     row.map((tile, colIndex) => (
-                        <motion.div
+                        <MotionDiv
                             key={`${rowIndex}-${colIndex}`}
                             variants={tileVariants}
                             initial="hidden"
@@ -290,7 +291,7 @@ const MinesweeperGame = () => {
                             {!tile.isRevealed && tile.isFlagged && (
                                 <Flag className="text-red-500 w-4 h-4 sm:w-5 sm:h-5" /> // Responsive icon size
                             )}
-                        </motion.div>
+                        </MotionDiv>
                     ))
                 ))}
             </div>
