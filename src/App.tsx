@@ -1,19 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Flag, Bomb } from 'lucide-react';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import { motion } from 'framer-motion';
+import { Bomb, Flag } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Toaster, toast } from 'sonner';
 
 // Types and Interfaces
 interface Tile {
@@ -139,6 +129,7 @@ const MinesweeperGame = () => {
     const [isGameOver, setIsGameOver] = useState(false);
     const [isGameWon, setIsGameWon] = useState(false);
     const [flagsLeft, setFlagsLeft] = useState(INITIAL_FLAGS);
+    const [shakeFlags, setShakeFlags] = useState(false);
 
     // Initialize Game
     useEffect(() => {
@@ -162,6 +153,9 @@ const MinesweeperGame = () => {
         if (newBoard[row][col].isMine) {
             setIsGameOver(true);
             setBoard(revealBoard(board));
+            toast.error("Ups! You hit a mine. Game Over", {
+                duration: 5000,
+            });
             return;
         }
 
@@ -169,6 +163,9 @@ const MinesweeperGame = () => {
         if (checkWinCondition(newBoard)) {
             setIsGameWon(true);
             setBoard(revealBoard(board));
+            toast.success("Congratulations! You've cleared the minefield.", {
+                duration: 5000,
+            });
         }
 
     }, [board, isGameOver, isGameWon]);
@@ -215,73 +212,36 @@ const MinesweeperGame = () => {
         hover: { scale: 1.05, boxShadow: "0px 0px 5px rgba(0,0,0,0.2)", transition: { duration: 0.2 } },
     };
 
-    const gameOverVariants = {
-        initial: { opacity: 0, y: 20 },
-        animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    const flagsLeftVariants = {
+        shake: {
+            x: [0, -2, 2, -2, 2, 0], // Shake左右震动
+            transition: { duration: 0.5, repeat: 0 },
+        },
+        noShake: {
+            x: 0,
+            transition: { duration: 0.5 },
+        },
     };
+
+    // Flags Left change effect
+    useEffect(() => {
+        setShakeFlags(true);
+        const timer = setTimeout(() => {
+            setShakeFlags(false);
+        }, 500); // 0.5 seconds same as animation duration
+        return () => clearTimeout(timer);
+    }, [flagsLeft]);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
             <h1 className="text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">Minesweeper</h1>
 
-            <AlertDialog open={isGameOver} onOpenChange={setIsGameOver}>
-                <AlertDialogTrigger asChild>
-                    {isGameOver && (
-                        <motion.p
-                            variants={gameOverVariants}
-                            initial="initial"
-                            animate="animate"
-                            className="text-red-500 font-bold mb-2"
-                        >
-                            Game Over! You hit a mine.
-                        </motion.p>
-                    )}
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Game Over</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            You hit a mine! Would you like to restart the game?
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel onClick={handleReset}>Restart</AlertDialogCancel>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-
-            <AlertDialog open={isGameWon} onOpenChange={setIsGameWon}>
-                <AlertDialogTrigger asChild>
-                    {isGameWon && (
-                        <motion.p
-                            variants={gameOverVariants}
-                            initial="initial"
-                            animate="animate"
-                            className="text-green-500 font-bold mb-2"
-                        >
-                            You Win!
-                        </motion.p>
-                    )}
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>You Win!</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Congratulations! You&apos;ve cleared the minefield.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogAction onClick={handleReset}>Play Again</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-
-            <div className="mb-2 text-gray-700 dark:text-gray-300">
-                Flags Left: {flagsLeft}
-            </div>
             <div
-                className="grid gap-0.5 border border-gray-400 dark:border-gray-600 shadow-md"
-                style={{ gridTemplateColumns: `repeat(${BOARD_SIZE}, 44px)` }}
+                className="grid gap-0.5 border border-gray-400 dark:border-gray-600 shadow-md mb-4"
+                style={{
+                    gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(36px, 1fr))`, // Responsive tile size
+                    maxWidth: '90vw', // Responsive board width
+                }}
             >
                 {board.map((row, rowIndex) => (
                     row.map((tile, colIndex) => (
@@ -290,26 +250,26 @@ const MinesweeperGame = () => {
                             variants={tileVariants}
                             initial="hidden"
                             animate="visible"
-                            whileHover="hover"
+                            whileHover={(!isGameOver && !isGameWon) ? "hover" : {}}
                             className={cn(
-                                "w-8 h-8 flex items-center justify-center border border-gray-400 dark:border-gray-700 select-none",
+                                "aspect-square flex items-center justify-center border border-gray-400 dark:border-gray-700 select-none",
                                 {
                                     'bg-gray-300 dark:bg-gray-700': !tile.isRevealed && !tile.isFlagged,
                                     'bg-gray-200 dark:bg-gray-800': tile.isRevealed,
                                     'bg-yellow-400 dark:bg-yellow-600': tile.isFlagged,
-                                    'cursor-pointer': !tile.isRevealed && !tile.isFlagged,
-                                    'cursor-not-allowed': tile.isRevealed || tile.isFlagged,
+                                    'cursor-pointer': (!tile.isRevealed && !tile.isFlagged && !isGameOver && !isGameWon),
+                                    'cursor-not-allowed': tile.isRevealed || tile.isFlagged || isGameOver || isGameWon,
                                 }
                             )}
-                            onClick={() => handleTileClick(rowIndex, colIndex)}
-                            onContextMenu={(e) => handleTileRightClick(e, rowIndex, colIndex)}
+                            onClick={() => (isGameOver || isGameWon) ? {} : handleTileClick(rowIndex, colIndex)}
+                            onContextMenu={(e) => (isGameOver || isGameWon) ? e.preventDefault() : handleTileRightClick(e, rowIndex, colIndex)}
                         >
                             {tile.isRevealed && (
                                 tile.isMine ? (
-                                    <Bomb className="text-red-600 w-5 h-5" />
+                                    <Bomb className="text-red-600 w-4 h-4 sm:w-5 sm:h-5" /> // Responsive icon size
                                 ) : tile.adjacentMines > 0 ? (
                                     <span className={cn(
-                                        "font-bold",
+                                        "font-bold text-sm sm:text-base", // Responsive font size
                                         {
                                             'text-blue-500': tile.adjacentMines === 1,
                                             'text-green-500': tile.adjacentMines === 2,
@@ -328,20 +288,35 @@ const MinesweeperGame = () => {
                                 )
                             )}
                             {!tile.isRevealed && tile.isFlagged && (
-                                <Flag className="text-red-500 w-5 h-5" />
+                                <Flag className="text-red-500 w-4 h-4 sm:w-5 sm:h-5" /> // Responsive icon size
                             )}
                         </motion.div>
                     ))
                 ))}
             </div>
-            <motion.div variants={resetButtonVariants} whileHover="hover">
-                <Button
-                    onClick={handleReset}
-                    className="mt-4 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded cursor-pointer"
-                >
-                    Reset Game
-                </Button>
-            </motion.div>
+            <div className="flex items-center justify-center w-full max-w-[90vw]">
+                <div className="text-gray-700 dark:text-gray-300 select-none flex items-center gap-1 mr-4">
+                    <span>Flags Left: </span>
+                    <motion.span
+                        variants={flagsLeftVariants}
+                        animate={shakeFlags ? "shake" : "noShake"}
+                        style={{
+                            color: flagsLeft === 0 ? "#FFAAAA" : "white", // Soft Red
+                        }}
+                    >
+                        {flagsLeft}
+                    </motion.span>
+                </div>
+                <motion.div variants={resetButtonVariants} whileHover="hover">
+                    <Button
+                        onClick={handleReset}
+                        className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded cursor-pointer text-sm sm:text-base" // Responsive font size
+                    >
+                        Reset Game
+                    </Button>
+                </motion.div>
+            </div>
+            <Toaster richColors position="top-center" />
         </div>
     );
 };
