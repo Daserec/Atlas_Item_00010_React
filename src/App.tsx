@@ -317,7 +317,7 @@ const MinesweeperGame = () => {
                     </Button>
                 </motion.div>
             </div>
-            <Toaster richColors position="top-center" />
+            <Toaster richColors position="top-center" closeButton={true} />
         </div>
     );
 };
