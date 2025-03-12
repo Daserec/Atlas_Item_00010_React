@@ -156,7 +156,7 @@ const MinesweeperGame = () => {
             setBoard(revealBoard(board));
             toast.error(
                 <div onClick={() => toast.dismiss()}>
-                    <p>Ups! You hit a mine. Game Over</p>
+                    <p>Oops! You hit a mine. Game Over</p>
                 </div>, {
                 duration: 5000,
             });
