@@ -154,7 +154,10 @@ const MinesweeperGame = () => {
         if (newBoard[row][col].isMine) {
             setIsGameOver(true);
             setBoard(revealBoard(board));
-            toast.error("Ups! You hit a mine. Game Over", {
+            toast.error(
+                <div onClick={() => toast.dismiss()}>
+                    <p>Ups! You hit a mine. Game Over</p>
+                </div>, {
                 duration: 5000,
             });
             return;
@@ -164,7 +167,10 @@ const MinesweeperGame = () => {
         if (checkWinCondition(newBoard)) {
             setIsGameWon(true);
             setBoard(revealBoard(board));
-            toast.success("Congratulations! You've cleared the minefield.", {
+            toast.success(
+                <div onClick={() => toast.dismiss()}>
+                    <p>Congratulations! You've cleared the minefield.</p>
+                </div>, {
                 duration: 5000,
             });
         }
@@ -196,6 +202,7 @@ const MinesweeperGame = () => {
         setIsGameOver(false);
         setIsGameWon(false);
         setFlagsLeft(INITIAL_FLAGS);
+        toast.dismiss();
     };
 
     // Animation Variants
@@ -234,11 +241,11 @@ const MinesweeperGame = () => {
     }, [flagsLeft]);
 
     return (
-        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 dark:bg-gray-900">
-            <h1 className="text-3xl mt-4 font-bold mb-4 text-gray-800 dark:text-gray-200">Minesweeper</h1>
+        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 bg-gray-900">
+            <h1 className="text-3xl mt-4 font-bold mb-4 text-gray-200">Minesweeper</h1>
 
             <div
-                className="grid gap-0.5 border border-gray-400 dark:border-gray-600 shadow-md mb-4"
+                className="grid gap-0.5 border border-gray-600 shadow-md mb-4"
                 style={{
                     gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(24px, 36px))`, // Responsive tile size
                     maxWidth: '90vw', // Responsive board width
@@ -253,11 +260,11 @@ const MinesweeperGame = () => {
                             animate="visible"
                             whileHover={(!isGameOver && !isGameWon) ? "hover" : {}}
                             className={cn(
-                                "aspect-square flex items-center justify-center border border-gray-400 dark:border-gray-700 select-none",
+                                "aspect-square flex items-center justify-center border border-gray-700 select-none",
                                 {
-                                    'bg-gray-300 dark:bg-gray-700': !tile.isRevealed && !tile.isFlagged,
-                                    'bg-gray-200 dark:bg-gray-800': tile.isRevealed,
-                                    'bg-yellow-400 dark:bg-yellow-600': tile.isFlagged,
+                                    'bg-gray-700': !tile.isRevealed && !tile.isFlagged,
+                                    'bg-gray-800': tile.isRevealed,
+                                    'bg-yellow-600': tile.isFlagged,
                                     'cursor-pointer': (!tile.isRevealed && !tile.isFlagged && !isGameOver && !isGameWon),
                                     'cursor-not-allowed': tile.isRevealed || tile.isFlagged || isGameOver || isGameWon,
                                 }
@@ -296,7 +303,7 @@ const MinesweeperGame = () => {
                 ))}
             </div>
             <div className="flex items-center justify-center w-full max-w-[90vw]">
-                <div className="text-gray-700 dark:text-gray-300 select-none flex items-center gap-1 mr-4">
+                <div className="text-gray-300 select-none flex items-center gap-1 mr-4">
                     <span>Flags Left: </span>
                     <motion.span
                         variants={flagsLeftVariants}
@@ -317,7 +324,7 @@ const MinesweeperGame = () => {
                     </Button>
                 </motion.div>
             </div>
-            <Toaster richColors position="top-center" closeButton={true} />
+            <Toaster richColors position="top-center" />
         </div>
     );
 };
