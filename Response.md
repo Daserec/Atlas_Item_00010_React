@@ -1,4 +1,39 @@
+Of course! Here is the code that implements a Minesweeper game in built on React with Typescript, where users can uncover tiles, flag potential mines, and reveal the entire board when the game is over.
+
+<br>
+```tsx
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { Bomb, Flag } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Toaster, toast } from 'sonner';
+import { MotionDiv } from '@/components/common/motion';
+// Types and Interfaces
+interface Tile {
+    isMine: boolean;
+    isRevealed: boolean;
+    isFlagged: boolean;
+    adjacentMines: number;
+}
+type Board = Tile[][];
+// Constants
+const BOARD_SIZE = 10;
+const NUM_MINES = 15;
+const INITIAL_FLAGS = 10;
+// Helper Functions
+// Create a random board based on the initial amount of mines specified in NUM_MINES variable.
+const createEmptyBoard = (): Board => {
+    const newBoard: Board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null).map(() => ({
+        isMine: false,
+        isRevealed: false,
+        isFlagged: false,
+        adjacentMines: 0,
+    })));
+    let minesPlaced = 0;
+    while (minesPlaced < NUM_MINES) {
+        const row = Math.floor(Math.random() * BOARD_SIZE);
+        const col = Math.floor(Math.random() * BOARD_SIZE);import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Bomb, Flag } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -335,3 +370,13 @@ const MinesweeperGame = () => {
 };
 
 export default MinesweeperGame;
+```
+
+The `MinesweeperGame` React component includes all funcionality related to the Game:
+
+* Clicking on tiles: `handleTileClick` method handles the users clicks on tiles and reveals the underneath value (number, empty square or mine)
+* Right clicking on tiles: `handleTileRightClick` handles flag insertion and removal.
+* Reset game button: `handleReset` function takes care of resetting the game.
+<br>
+
+If you would like to add more feratures such as game difficulty changing toobar, I'm at your disposition.
